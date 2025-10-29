@@ -1,6 +1,6 @@
 # Famma AI - MCP Auth
 
-SDK for building OAuth-protected Remote MCP servers on Cloudflare Workers with pluggable auth adapters (Supabase included).
+SDK for building OAuth-protected Remote MCP servers on Cloudflare Workers with pluggable auth adapters (Supabase already implemented).
 
 ## Who is this for?
 
@@ -19,8 +19,7 @@ Use this if:
 ## Install
 
 ```bash
-npm install @famma/mcp-auth @cloudflare/workers-oauth-provider hono
-npm install agents @modelcontextprotocol/sdk
+npm install @famma/mcp-auth
 ```
 
 ## Quickstart
