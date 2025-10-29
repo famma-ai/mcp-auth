@@ -1,120 +1,151 @@
-# Remote MCP Server on Cloudflare
+# Famma MCP SDK
 
-Let's get a remote MCP server up-and-running on Cloudflare Workers complete with OAuth login!
+SDK for building OAuth-protected Remote MCP servers on Cloudflare Workers with pluggable auth adapters (Supabase included).
 
-## Develop locally
+- Exported primitives: `createOAuthProviderWithMCP`, `createAuthProxy`
+- Adapters: `SupabaseAuthAdapter`
+- Types: `AppConfig`, `AuthAdapter`, `CoreBindings`, `TokenExchangeResult`
+- Example Worker: `examples/cloudflare-worker/`
+
+## Install
 
 ```bash
-# clone the repository
-git clone https://github.com/cloudflare/ai.git
-# Or if using ssh:
-# git clone git@github.com:cloudflare/ai.git
-
-# install dependencies
-cd ai
-# Note: using pnpm instead of just "npm"
-pnpm install
-
-# run locally
-npx nx dev remote-mcp-server
+npm install famma-mcp-sdk @cloudflare/workers-oauth-provider hono
+# If your MCP Agent comes from agents/mcp
+npm install agents @modelcontextprotocol/sdk
 ```
 
-You should be able to open [`http://localhost:8787/`](http://localhost:8787/) in your browser
+## Quickstart (Cloudflare Worker)
 
-## Connect the MCP inspector to your server
+Your MCP Agent must expose a static `mount(route)` (as `agents/mcp` does).
 
-To explore your new MCP api, you can use the [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector).
+```ts
+// src/worker.ts
+import { createOAuthProviderWithMCP, SupabaseAuthAdapter, type AppConfig } from "famma-mcp-sdk";
+import type { McpAgent } from "agents/mcp";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-- Start it with `npx @modelcontextprotocol/inspector`
-- [Within the inspector](http://localhost:5173), switch the Transport Type to `SSE` and enter `http://localhost:8787/sse` as the URL of the MCP server to connect to, and click "Connect"
-- You will navigate to a (mock) user/password login screen. Input any email and pass to login.
-- You should be redirected back to the MCP Inspector and you can now list and call any defined tools!
+class MyMCP extends (McpAgent as unknown as { new(): any; mount(route: string): any }) {
+  server = new McpServer({ name: "Demo", version: "1.0.0" });
+  async init() {
+    this.server.tool("whoami", async () => ({
+      content: [{ type: "text", text: String(this.props?.userEmail ?? "Unknown user") }],
+    }));
+  }
+}
 
-<div align="center">
-  <img src="img/mcp-inspector-sse-config.png" alt="MCP Inspector with the above config" width="600"/>
-</div>
+let provider: ReturnType<typeof createOAuthProviderWithMCP> | undefined;
 
-<div align="center">
-  <img src="img/mcp-inspector-successful-tool-call.png" alt="MCP Inspector with after a tool call" width="600"/>
-</div>
+export default {
+  async fetch(request: Request, env: any, ctx: ExecutionContext) {
+    if (!provider) {
+      const appConfig: AppConfig = {
+        logoUrl: env.LOGO_URL ?? "https://example.com/logo.png",
+        companyName: env.COMPANY_NAME ?? "Example Co",
+        proxyTargetUrl: env.PROXY_TARGET_URL,
+      };
 
-## Connect Claude Desktop to your local MCP server
+      const authAdapter = new SupabaseAuthAdapter({
+        supabaseUrl: env.SUPABASE_URL,
+        supabaseAnonKey: env.SUPABASE_ANON_KEY,
+        proxyTargetUrl: appConfig.proxyTargetUrl,
+        oauthProvider: undefined,
+      });
 
-The MCP inspector is great, but we really want to connect this to Claude! Follow [Anthropic's Quickstart](https://modelcontextprotocol.io/quickstart/user) and within Claude Desktop go to Settings > Developer > Edit Config to find your configuration file.
+      provider = createOAuthProviderWithMCP({
+        mcpAgentClass: MyMCP as unknown as typeof McpAgent,
+        authAdapter,
+        appConfig,
+      });
+    }
+    return provider.fetch(request, env, ctx);
+  },
+};
+```
 
-Open the file in your text editor and replace it with this configuration:
+### wrangler.jsonc
 
 ```json
 {
-  "mcpServers": {
-    "math": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "http://localhost:8787/sse"
-      ]
-    }
+  "name": "mcp-worker",
+  "main": "src/worker.ts",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    { "binding": "OAUTH_KV", "id": "<your-kv-id>" }
+  ],
+  "vars": {
+    "COMPANY_NAME": "Example Co",
+    "LOGO_URL": "https://example.com/logo.png",
+    "PROXY_TARGET_URL": "https://your-login-host.example.com"
   }
 }
 ```
 
-This will run a local proxy and let Claude talk to your MCP server over HTTP
+### Set secrets and run
 
-When you open Claude a browser window should open and allow you to login. You should see the tools available in the bottom right. Given the right prompt Claude should ask to call the tool.
+```bash
+# One time: create KV namespace
+npx wrangler kv namespace create OAUTH_KV
 
-<div align="center">
-  <img src="img/available-tools.png" alt="Clicking on the hammer icon shows a list of available tools" width="600"/>
-</div>
+# Secrets for Supabase
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_ANON_KEY
 
-<div align="center">
-  <img src="img/claude-does-math-the-fancy-way.png" alt="Claude answers the prompt 'I seem to have lost my calculator and have run out of fingers. Could you use the math tool to add 23 and 19?' by invoking the MCP add tool" width="600"/>
-</div>
+# Local dev
+npx wrangler dev
+```
 
-## Deploy to Cloudflare
+Visit:
+- `/authorize` – start OAuth flow
+- `/auth/login` – proxies to your `PROXY_TARGET_URL` when unauthenticated
+- `/mcp` – MCP route
 
-1. `npx wrangler kv namespace create OAUTH_KV`
-2. Follow the guidance to add the kv namespace ID to `wrangler.jsonc`
-3. `npm run deploy`
+## Example Project
 
-## Call your newly deployed remote MCP server from a remote MCP client
+See `examples/cloudflare-worker/` for a complete working Worker with:
+- Example MCP agent
+- Runtime adapter construction from `env`
+- Dev vars template and Wrangler config
 
-Just like you did above in "Develop locally", run the MCP inspector:
+## API
 
-`npx @modelcontextprotocol/inspector@latest`
+```ts
+import {
+  createOAuthProviderWithMCP,
+  createAuthProxy,
+  SupabaseAuthAdapter,
+  type SupabaseAdapterConfig,
+  type SupabaseBindings,
+  type AppConfig,
+  type AuthAdapter,
+  type CoreBindings,
+  type TokenExchangeResult,
+} from "famma-mcp-sdk";
+```
 
-Then enter the `workers.dev` URL (ex: `worker-name.account-name.workers.dev/sse`) of your Worker in the inspector as the URL of the MCP server to connect to, and click "Connect".
+- `createOAuthProviderWithMCP({ mcpAgentClass, authAdapter, appConfig, tokenExchangeCallback? })`
+  - Returns an `OAuthProvider` Worker-compatible handler. Uses `authAdapter.tokenExchangeCallback` by default.
+- `createAuthProxy(authAdapter, appConfig)`
+  - Returns a Hono app implementing `/authorize`, `/approve`, `/auth/login`, and reverse proxy.
+- `SupabaseAuthAdapter(config: SupabaseAdapterConfig)`
+  - Requires: `supabaseUrl`, `supabaseAnonKey`, `proxyTargetUrl`, `oauthProvider` (not currently used by the adapter).
 
-You've now connected to your MCP server from a remote MCP client.
+### AuthAdapter contract
 
-## Connect Claude Desktop to your remote MCP server
-
-Update the Claude configuration file to point to your `workers.dev` URL (ex: `worker-name.account-name.workers.dev/sse`) and restart Claude 
-
-```json
-{
-  "mcpServers": {
-    "math": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://worker-name.account-name.workers.dev/sse"
-      ]
-    }
-  }
+```ts
+interface AuthAdapter<TBindings = any> {
+  getUser(c): Promise<AuthUser | null>;
+  getSession(c): Promise<AuthSession | null>;
+  getAuthorizationProps(c, user, session): Promise<Record<string, any>>;
+  tokenExchangeCallback?: (args: { grantType: string; props: Record<string, any> }) => Promise<TokenExchangeResult | void>;
 }
 ```
 
-## Debugging
+The Supabase adapter implements `tokenExchangeCallback` to rotate `refresh_token` via Supabase.
 
-Should anything go wrong it can be helpful to restart Claude, or to try connecting directly to your
-MCP server on the command line with the following command.
+## Notes
+- Cloudflare Workers do not use `process.env`; read runtime config from `env` in `fetch`.
+- The OAuth provider requires `OAUTH_KV` configured in Wrangler.
+- You can provide your own `tokenExchangeCallback` in `createOAuthProviderWithMCP` to override adapter behavior.
 
-```bash
-npx mcp-remote http://localhost:8787/sse
-```
-
-In some rare cases it may help to clear the files added to `~/.mcp-auth`
-
-```bash
-rm -rf ~/.mcp-auth
-```

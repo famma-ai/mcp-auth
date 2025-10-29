@@ -1,0 +1,7 @@
+SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+PROXY_TARGET_URL="https://your-login-host.example.com"
+COMPANY_NAME="Example Co"
+LOGO_URL="https://example.com/logo.png"
+
+

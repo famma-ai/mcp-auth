@@ -31,10 +31,6 @@ export function createOAuthProviderWithMCP<TBindings extends CoreBindings = Core
     authAdapter,
     appConfig,
     apiRoute = "/mcp",
-    authorizeEndpoint = "/authorize",
-    tokenEndpoint = "/token",
-    clientRegistrationEndpoint = "/register",
-    tokenExchangeCallback,
 }: CreateOAuthProviderOptions<TBindings>) {
     const defaultHandler = {
         async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
@@ -47,9 +43,9 @@ export function createOAuthProviderWithMCP<TBindings extends CoreBindings = Core
         apiRoute,
         apiHandler: mcpAgentClass.mount(apiRoute),
         defaultHandler,
-        authorizeEndpoint,
-        tokenEndpoint,
-        clientRegistrationEndpoint,
-        tokenExchangeCallback: tokenExchangeCallback ?? authAdapter.tokenExchangeCallback,
+		authorizeEndpoint: "/authorize",
+		tokenEndpoint: "/token",
+		clientRegistrationEndpoint: "/register",
+        tokenExchangeCallback: authAdapter.tokenExchangeCallback,
     });
 }

@@ -1,0 +1,16 @@
+{
+	"name": "mcp-sdk-example",
+	"main": "src/worker.ts",
+	"compatibility_date": "2025-03-10",
+	"compatibility_flags": ["nodejs_compat"],
+	"kv_namespaces": [
+		{ "binding": "OAUTH_KV", "id": "REPLACE_WITH_YOUR_KV_ID" }
+	],
+	"vars": {
+		"COMPANY_NAME": "Example Co",
+		"LOGO_URL": "https://example.com/logo.png",
+		"PROXY_TARGET_URL": "https://your-login-host.example.com"
+	}
+}
+
+
