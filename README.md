@@ -14,6 +14,7 @@ Use this if:
 - Exported primitives: `createOAuthProviderWithMCP`, `createAuthProxy`
 - Adapters: `SupabaseAuthAdapter`
 - Types: `AppConfig`, `AuthAdapter`, `CoreBindings`, `TokenExchangeResult`
+  - `AppConfig.loginPath?` optional login route (default `"/auth/login"`)
 
 ## Install
 
@@ -50,6 +51,8 @@ export default {
         logoUrl: env.LOGO_URL ?? "https://example.com/logo.png",
         companyName: env.COMPANY_NAME ?? "Example Co",
         proxyTargetUrl: env.PROXY_TARGET_URL,
+        // Optional: customize the login route mounted by the proxy (default "/auth/login")
+        loginPath: env.LOGIN_PATH ?? "/auth/login",
       };
 
       const authAdapter = new SupabaseAuthAdapter({
@@ -204,6 +207,8 @@ export default {
       logoUrl: env.LOGO_URL,
       companyName: env.COMPANY_NAME,
       proxyTargetUrl: env.PROXY_TARGET_URL,
+      // Optional: customize login route (default "/auth/login")
+      loginPath: env.LOGIN_PATH ?? "/auth/login",
     };
     const authAdapter = new HeaderAuthAdapter();
     return createOAuthProviderWithMCP({
@@ -236,7 +241,7 @@ import {
 - `createOAuthProviderWithMCP({ mcpAgentClass, authAdapter, appConfig, tokenExchangeCallback? })`
   - Returns an `OAuthProvider` Worker-compatible handler. Uses `authAdapter.tokenExchangeCallback` by default.
 - `createAuthProxy(authAdapter, appConfig)`
-  - Returns a Hono app implementing `/authorize`, `/approve`, `/auth/login`, and reverse proxy.
+  - Returns a Hono app implementing `/authorize`, `/approve`, `loginPath` (default `"/auth/login"`), and a reverse proxy.
 - `SupabaseAuthAdapter(config: SupabaseAdapterConfig)`
   - Requires: `supabaseUrl`, `supabaseAnonKey`.
 

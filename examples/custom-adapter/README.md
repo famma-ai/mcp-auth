@@ -13,3 +13,6 @@ An example showing how to implement a non-Supabase auth provider by fulfilling t
 3) `wrangler dev` from this folder (ensure imports resolve to your built/published SDK).
 
 See `src/header-auth-adapter.ts` and `src/worker.ts`.
+
+### Notes
+- You can set a custom login route via `appConfig.loginPath` (defaults to `/auth/login`).
