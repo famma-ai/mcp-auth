@@ -108,6 +108,112 @@ See `examples/cloudflare-worker/` for a complete working Worker with:
 - Runtime adapter construction from `env`
 - Dev vars template and Wrangler config
 
+## Building a Custom Auth Provider (non-Supabase)
+
+Implement the `AuthAdapter` interface and pass your adapter to `createOAuthProviderWithMCP`.
+
+Key responsibilities:
+- `getUser(c)`: return `{ id, email }` when authenticated, or `null`.
+- `getSession(c)`: return `{ accessToken, refreshToken, ... }` or `null`.
+- `getAuthorizationProps(c, user, session)`: return properties to persist with the OAuth token. Include anything required for future refreshes (e.g., API base URL, client id/secret, tenant).
+- `tokenExchangeCallback({ grantType, props })` (optional): perform refresh flow and return updated tokens.
+
+Minimal skeleton:
+
+```ts
+import type { Context } from 'hono';
+import type {
+  AuthAdapter,
+  AuthUser,
+  AuthSession,
+  CoreBindings,
+  TokenExchangeResult,
+} from 'famma-mcp-sdk';
+
+export interface MyBindings extends CoreBindings {
+  // Add any additional env bindings if your provider needs them
+}
+
+export class HeaderAuthAdapter implements AuthAdapter<MyBindings> {
+  async getUser(c: Context<{ Bindings: MyBindings }>): Promise<AuthUser | null> {
+    // Example: derive user from headers/cookies/session
+    const userId = c.req.header('x-user-id');
+    const userEmail = c.req.header('x-user-email');
+    if (!userId) return null;
+    return { id: userId, email: userEmail ?? null };
+  }
+
+  async getSession(c: Context<{ Bindings: MyBindings }>): Promise<AuthSession | null> {
+    // Example: access token from header/cookie; refresh token optional
+    const accessToken = c.req.header('x-access-token');
+    const refreshToken = c.req.header('x-refresh-token') ?? '';
+    if (!accessToken) return null;
+    return { accessToken, refreshToken };
+  }
+
+  async getAuthorizationProps(
+    _c: Context<{ Bindings: MyBindings }>,
+    user: AuthUser,
+    session: AuthSession,
+  ): Promise<Record<string, any>> {
+    return {
+      userEmail: user.email ?? '',
+      userId: user.id,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      // Add provider-specific props needed for future refresh
+      providerBaseUrl: 'https://api.example.com',
+      clientId: 'your-client-id',
+    };
+  }
+
+  // Optional: implement refresh flow
+  async tokenExchangeCallback({ grantType, props }: { grantType: string; props: Record<string, any> }): Promise<TokenExchangeResult | void> {
+    if (grantType !== 'refresh_token') return;
+    const rt = props?.refreshToken as string | undefined;
+    if (!rt) return;
+    // Perform your provider's refresh request here
+    // const resp = await fetch('https://api.example.com/oauth/token', { ... });
+    // const json = await resp.json();
+    const newAccess = 'NEW_ACCESS_TOKEN';
+    const newRefresh = rt; // or a rotated token
+    return {
+      accessTokenProps: { ...props, accessToken: newAccess },
+      newProps: { ...props, accessToken: newAccess, refreshToken: newRefresh },
+      // accessTokenTTL: json.expires_in,
+    };
+  }
+}
+```
+
+Wire it into a Worker:
+
+```ts
+import { createOAuthProviderWithMCP, type AppConfig } from 'famma-mcp-sdk';
+import { McpAgent } from 'agents/mcp';
+import { HeaderAuthAdapter } from './header-auth-adapter';
+
+class MyMCP extends McpAgent { /* ...tools... */ }
+
+export default {
+  async fetch(request: Request, env: any, ctx: ExecutionContext) {
+    const appConfig: AppConfig = {
+      logoUrl: env.LOGO_URL,
+      companyName: env.COMPANY_NAME,
+      proxyTargetUrl: env.PROXY_TARGET_URL,
+    };
+    const authAdapter = new HeaderAuthAdapter();
+    return createOAuthProviderWithMCP({
+      mcpAgentClass: MyMCP,
+      authAdapter,
+      appConfig,
+    }).fetch(request, env, ctx);
+  }
+}
+```
+
+A full runnable sample is in `examples/custom-adapter/`.
+
 ## API
 
 ```ts
