@@ -1,0 +1,8 @@
+# Supabase Configuration
+# Get these values from: https://supabase.com/dashboard/project/_/settings/api
+SUPABASE_URL=your-supabase-url-here
+SUPABASE_ANON_KEY=your-supabase-anon-key-here
+
+# Proxy target URL for Auth. This is the URL of your web app.
+PROXY_TARGET_URL=https://www.your_web_app_url.com
+
