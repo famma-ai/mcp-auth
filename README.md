@@ -1,23 +1,28 @@
-# Famma MCP SDK
+# Famma AI - MCP Auth
 
 SDK for building OAuth-protected Remote MCP servers on Cloudflare Workers with pluggable auth adapters (Supabase included).
 
+## Who is this for?
+
+TL;DR: If you are building an MCP server/agent that needs user authentication but your identity provider does not yet offer an OAuth 2.1 flow (e.g., Supabase as of October 2025), this SDK helps you run your MCP behind a reverse-proxy-based OAuth flow and deploy it as a Cloudflare Worker.
+Use this if:
+- You have an MCP agent/server and need authenticated access per user.
+- Your IdP lacks a suitable OAuth 2.1 flow for your use case today.
+- You want a Cloudflare Workers deployment with pluggable auth adapters (Supabase included).
+
+## Interface
 - Exported primitives: `createOAuthProviderWithMCP`, `createAuthProxy`
 - Adapters: `SupabaseAuthAdapter`
 - Types: `AppConfig`, `AuthAdapter`, `CoreBindings`, `TokenExchangeResult`
-- Example Worker: `examples/cloudflare-worker/`
 
 ## Install
 
 ```bash
 npm install @famma/mcp-auth @cloudflare/workers-oauth-provider hono
-# If your MCP Agent comes from agents/mcp
 npm install agents @modelcontextprotocol/sdk
 ```
 
-## Quickstart (Cloudflare Worker)
-
-Your MCP Agent must expose a static `mount(route)` (as `agents/mcp` does).
+## Quickstart
 
 ```ts
 // src/worker.ts
@@ -96,10 +101,7 @@ npx wrangler secret put SUPABASE_ANON_KEY
 npx wrangler dev
 ```
 
-Visit:
-- `/authorize` – start OAuth flow
-- `/auth/login` – proxies to your `PROXY_TARGET_URL` when unauthenticated
-- `/mcp` – MCP route
+Use `npx @modelcontextprotocol/inspector` or `npx @mcpjam/inspector@latest` to connect and test your MCP server.
 
 ## Example Project
 
@@ -253,5 +255,45 @@ The Supabase adapter implements `tokenExchangeCallback` to rotate `refresh_token
 ## Notes
 - Cloudflare Workers do not use `process.env`; read runtime config from `env` in `fetch`.
 - The OAuth provider requires `OAUTH_KV` configured in Wrangler.
-- You can provide your own `tokenExchangeCallback` in `createOAuthProviderWithMCP` to override adapter behavior.
 
+## Compatibility and requirements
+
+- Cloudflare Workers: compatibility_date `2025-03-10` or newer
+- Wrangler: v4.42+ (with `nodejs_compat` flag enabled)
+- KV: `OAUTH_KV` namespace required for token storage
+- Node.js: 18+ for local development/build tooling
+- TypeScript: 5.9+
+
+Note: Environment variables are optional in examples; you may hardcode values or use `vars`/secrets in Wrangler for production.
+
+## Contributing
+
+Requirements: Node 18+, npm, Wrangler.
+
+Development:
+
+```bash
+npm install
+npm run build
+
+# Example worker (dev)
+cd examples/cloudflare-worker
+npx wrangler dev
+
+# Formatting / lint
+npm run format
+npm run lint:fix
+```
+
+Please open issues or PRs on GitHub.
+
+## Links
+
+- MCP: https://modelcontextprotocol.io
+- Cloudflare Workers OAuth provider: https://developers.cloudflare.com/workers/
+- Repo: https://github.com/famma-ai/famma-mcp-sdk
+- npm: https://www.npmjs.com/package/@famma/mcp-auth
+
+## License
+
+MIT © 2025 Famma. See `LICENSE` for details.
