@@ -40,13 +40,6 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 			const cookieValue =
 				`return_to=${encodeURIComponent(currentUrl.pathname + currentUrl.search)}; Path=/; HttpOnly; SameSite=Lax` +
 				(isHttps ? "; Secure" : "");
-			console.log(
-				"/authorize: unauthenticated, setting return_to and redirecting",
-				{
-					returnTo: currentUrl.pathname + currentUrl.search,
-					isHttps,
-				},
-			);
 			const res = c.redirect(
 				`/auth/login?redirect=${encodeURIComponent(currentUrl.pathname + currentUrl.search)}`,
 			);
@@ -153,10 +146,6 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 		if (!user) {
 			const url = new URL(c.req.url);
 			const targetUrl = new URL(url.pathname + url.search, config.proxyTargetUrl);
-			console.log("/auth/login: unauthenticated, proxying login", {
-				path: url.pathname + url.search,
-				target: targetUrl.toString(),
-			});
 
 			const headers = new Headers();
 			for (const [key, value] of c.req.raw.headers) {
@@ -219,7 +208,6 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 		const clearCookie =
 			`return_to=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0` +
 			(isHttps ? "; Secure" : "");
-		console.log("/auth/login: authenticated, redirecting back", { returnTo });
 		const res = c.redirect(returnTo || "/authorize");
 		res.headers.append("Set-Cookie", clearCookie);
 		return res;
@@ -267,10 +255,6 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 				const clearCookie =
 					`return_to=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0` +
 					(isHttps ? "; Secure" : "");
-				console.log(
-					"catch-all: authenticated with return_to, redirecting",
-					{ returnTo },
-				);
 				const res = c.redirect(returnTo);
 				res.headers.append("Set-Cookie", clearCookie);
 				return res;
