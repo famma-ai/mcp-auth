@@ -20,6 +20,7 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 	config: AppConfig,
 ) {
 	const app = new Hono<{ Bindings: TBindings }>();
+    const loginPath = config.loginPath ?? "/auth/login";
 
 	// Render an authorization page
 	// If the user is logged in, we'll show a form to approve the authorization request
@@ -41,7 +42,7 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 				`return_to=${encodeURIComponent(currentUrl.pathname + currentUrl.search)}; Path=/; HttpOnly; SameSite=Lax` +
 				(isHttps ? "; Secure" : "");
 			const res = c.redirect(
-				`/auth/login?redirect=${encodeURIComponent(currentUrl.pathname + currentUrl.search)}`,
+                `${loginPath}?redirect=${encodeURIComponent(currentUrl.pathname + currentUrl.search)}`,
 			);
 			res.headers.append("Set-Cookie", cookieValue);
 			return res;
@@ -74,7 +75,7 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 		if (!user) {
 			return c.html(
 				layout(
-					await renderAuthorizationRejectedContent("/auth/login"),
+                    await renderAuthorizationRejectedContent(loginPath),
 					config.companyName,
 				),
 			);
@@ -100,7 +101,7 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 		if (!session) {
 			return c.html(
 				layout(
-					await renderAuthorizationRejectedContent("/auth/login"),
+                    await renderAuthorizationRejectedContent(loginPath),
 					config.companyName,
 				),
 			);
@@ -138,8 +139,8 @@ export function createAuthProxy<TBindings extends CoreBindings>(
 		);
 	});
 
-	// Login route: show proxied login when unauthenticated, otherwise bounce back to where we came from
-	app.get("/auth/login", async (c) => {
+    // Login route: show proxied login when unauthenticated, otherwise bounce back to where we came from
+    app.get(loginPath, async (c) => {
 		const user = await authAdapter.getUser(c);
 
 		// If not logged in yet, proxy the upstream login page at this same path

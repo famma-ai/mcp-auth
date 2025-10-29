@@ -22,6 +22,8 @@ export default {
         logoUrl: env.LOGO_URL ?? 'https://example.com/logo.png',
         companyName: env.COMPANY_NAME ?? 'Example Co',
         proxyTargetUrl: env.PROXY_TARGET_URL ?? 'https://your-login-host.example.com',
+        // Optional: you can set loginPath (default "/auth/login") once your SDK version supports it
+        // loginPath: env.LOGIN_PATH ?? '/auth/login',
       };
       const authAdapter = new HeaderAuthAdapter();
       provider = createOAuthProviderWithMCP({

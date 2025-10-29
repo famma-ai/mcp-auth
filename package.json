@@ -1,15 +1,15 @@
 {
     "name": "@famma/mcp-auth",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "private": false,
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/famma-ai/famma-mcp-sdk.git"
+        "url": "git+https://github.com/famma-ai/mcp-auth.git"
     },
-    "homepage": "https://github.com/famma-ai/famma-mcp-sdk#readme",
+    "homepage": "https://github.com/famma-ai/mcp-auth#readme",
     "bugs": {
-        "url": "https://github.com/famma-ai/famma-mcp-sdk/issues"
+        "url": "https://github.com/famma-ai/mcp-auth/issues"
     },
     "keywords": [
         "mcp",
@@ -52,6 +52,7 @@
         "@modelcontextprotocol/sdk": "1.19.1",
         "@supabase/ssr": "^0.7.0",
         "@supabase/supabase-js": "^2.75.0",
+        "agents": "^0.2.8",
         "hono": "^4.9.9",
         "zod": "^3.25.76"
     },

@@ -31,9 +31,10 @@ npx wrangler dev
 
 Endpoints to try:
 - `/authorize` – starts the OAuth approval flow
-- `/auth/login` – proxies to `PROXY_TARGET_URL` when unauthenticated
+- `loginPath` – proxies to `PROXY_TARGET_URL` when unauthenticated (default: `/auth/login`)
 - `/mcp` – MCP API route
 
 ## Notes
+- You can customize the login route via `appConfig.loginPath` (defaults to `/auth/login`).
 - The Supabase adapter is constructed inside the `fetch` handler to read Cloudflare `env` bindings.
 - Replace `ExampleMCP` with your own MCP Agent class (should be of type `agents/mcp`, i.e., extend or be compatible with `McpAgent`).

@@ -72,6 +72,8 @@ export interface AppConfig {
 	companyName: string;
 	/** Target URL to proxy requests to */
 	proxyTargetUrl: string;
+    /** Optional path to the login page route mounted by the proxy (default: "/auth/login") */
+    loginPath?: string;
 }
 
 /**
