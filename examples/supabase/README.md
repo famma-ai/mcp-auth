@@ -1,4 +1,4 @@
-# Cloudflare Worker MCP Example
+# Supabase MCP Worker Example
 
 This example shows how to wire an MCP Agent to the OAuth auth proxy provided by the SDK, using Supabase auth.
 
@@ -36,4 +36,4 @@ Endpoints to try:
 
 ## Notes
 - The Supabase adapter is constructed inside the `fetch` handler to read Cloudflare `env` bindings.
-- Replace `ExampleMCP` with your own MCP Agent class (must have a static `mount(route)` method, as provided by `agents/mcp`).
+- Replace `ExampleMCP` with your own MCP Agent class (should be of type `agents/mcp`, i.e., extend or be compatible with `McpAgent`).

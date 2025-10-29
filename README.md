@@ -24,13 +24,15 @@ npm install agents @modelcontextprotocol/sdk
 
 ## Quickstart
 
+Your MCP agent should be of type `agents/mcp` (extend or be compatible with `McpAgent`).
+
 ```ts
 // src/worker.ts
 import { createOAuthProviderWithMCP, SupabaseAuthAdapter, type AppConfig } from "@famma/mcp-auth";
-import type { McpAgent } from "agents/mcp";
+import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-class MyMCP extends (McpAgent as unknown as { new(): any; mount(route: string): any }) {
+class MyMCP extends McpAgent {
   server = new McpServer({ name: "Demo", version: "1.0.0" });
   async init() {
     this.server.tool("whoami", async () => ({
@@ -53,12 +55,10 @@ export default {
       const authAdapter = new SupabaseAuthAdapter({
         supabaseUrl: env.SUPABASE_URL,
         supabaseAnonKey: env.SUPABASE_ANON_KEY,
-        proxyTargetUrl: appConfig.proxyTargetUrl,
-        oauthProvider: undefined,
       });
 
       provider = createOAuthProviderWithMCP({
-        mcpAgentClass: MyMCP as unknown as typeof McpAgent,
+        mcpAgentClass: MyMCP,
         authAdapter,
         appConfig,
       });
@@ -105,8 +105,9 @@ Use `npx @modelcontextprotocol/inspector` or `npx @mcpjam/inspector@latest` to c
 
 ## Example Project
 
-See `examples/cloudflare-worker/` for a complete working Worker with:
+See `examples/supabase/` for a complete working Worker with:
 - Example MCP agent
+- Your Supabase Auth provider
 - Runtime adapter construction from `env`
 - Dev vars template and Wrangler config
 
@@ -237,7 +238,7 @@ import {
 - `createAuthProxy(authAdapter, appConfig)`
   - Returns a Hono app implementing `/authorize`, `/approve`, `/auth/login`, and reverse proxy.
 - `SupabaseAuthAdapter(config: SupabaseAdapterConfig)`
-  - Requires: `supabaseUrl`, `supabaseAnonKey`, `proxyTargetUrl`, `oauthProvider` (not currently used by the adapter).
+  - Requires: `supabaseUrl`, `supabaseAnonKey`.
 
 ### AuthAdapter contract
 
@@ -277,7 +278,7 @@ npm install
 npm run build
 
 # Example worker (dev)
-cd examples/cloudflare-worker
+cd examples/supabase
 npx wrangler dev
 
 # Formatting / lint

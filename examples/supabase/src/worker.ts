@@ -14,6 +14,7 @@ export class ExampleMCP extends McpAgent {
 		}));
 
 		// Report current user email from props (set by auth adapter)
+		// To make authenticated backend requests, get your Auth Token from this.props.accessToken.
 		this.server.tool("whoami", async () => ({
 			content: [
 				{ type: "text", text: String(this.props?.userEmail ?? "Unknown user") },
@@ -36,12 +37,10 @@ export default {
 			const authAdapter = new SupabaseAuthAdapter({
 				supabaseUrl: env.SUPABASE_URL,
 				supabaseAnonKey: env.SUPABASE_ANON_KEY,
-				proxyTargetUrl: appConfig.proxyTargetUrl,
-				oauthProvider: undefined,
-			} as any);
+			});
 
 			provider = createOAuthProviderWithMCP({
-				mcpAgentClass: ExampleMCP as unknown as typeof McpAgent,
+				mcpAgentClass: ExampleMCP,
 				authAdapter,
 				appConfig,
 			});
