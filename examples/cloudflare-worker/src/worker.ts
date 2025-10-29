@@ -1,4 +1,4 @@
-import { createOAuthProviderWithMCP, SupabaseAuthAdapter, type AppConfig } from "famma-mcp-sdk";
+import { createOAuthProviderWithMCP, SupabaseAuthAdapter, type AppConfig } from "@famma/mcp-auth";
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ExecutionContext } from "@cloudflare/workers-types";

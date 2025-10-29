@@ -1,5 +1,5 @@
 {
-    "name": "famma-mcp-sdk",
+    "name": "@famma/mcp-auth",
     "version": "0.0.0",
     "private": false,
     "type": "module",

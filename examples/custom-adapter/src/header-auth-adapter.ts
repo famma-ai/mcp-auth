@@ -5,7 +5,7 @@ import type {
   AuthSession,
   CoreBindings,
   TokenExchangeResult,
-} from 'famma-mcp-sdk';
+} from '@famma/mcp-auth';
 
 export interface ExampleBindings extends CoreBindings {}
 

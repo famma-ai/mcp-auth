@@ -10,7 +10,7 @@ SDK for building OAuth-protected Remote MCP servers on Cloudflare Workers with p
 ## Install
 
 ```bash
-npm install famma-mcp-sdk @cloudflare/workers-oauth-provider hono
+npm install @famma/mcp-auth @cloudflare/workers-oauth-provider hono
 # If your MCP Agent comes from agents/mcp
 npm install agents @modelcontextprotocol/sdk
 ```
@@ -21,7 +21,7 @@ Your MCP Agent must expose a static `mount(route)` (as `agents/mcp` does).
 
 ```ts
 // src/worker.ts
-import { createOAuthProviderWithMCP, SupabaseAuthAdapter, type AppConfig } from "famma-mcp-sdk";
+import { createOAuthProviderWithMCP, SupabaseAuthAdapter, type AppConfig } from "@famma/mcp-auth";
 import type { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
@@ -128,7 +128,7 @@ import type {
   AuthSession,
   CoreBindings,
   TokenExchangeResult,
-} from 'famma-mcp-sdk';
+} from '@famma/mcp-auth';
 
 export interface MyBindings extends CoreBindings {
   // Add any additional env bindings if your provider needs them
@@ -189,7 +189,7 @@ export class HeaderAuthAdapter implements AuthAdapter<MyBindings> {
 Wire it into a Worker:
 
 ```ts
-import { createOAuthProviderWithMCP, type AppConfig } from 'famma-mcp-sdk';
+import { createOAuthProviderWithMCP, type AppConfig } from '@famma/mcp-auth';
 import { McpAgent } from 'agents/mcp';
 import { HeaderAuthAdapter } from './header-auth-adapter';
 
@@ -227,7 +227,7 @@ import {
   type AuthAdapter,
   type CoreBindings,
   type TokenExchangeResult,
-} from "famma-mcp-sdk";
+} from "@famma/mcp-auth";
 ```
 
 - `createOAuthProviderWithMCP({ mcpAgentClass, authAdapter, appConfig, tokenExchangeCallback? })`
