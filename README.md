@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: light)" srcset=".github/images/white-preference.png">
     <source media="(prefers-color-scheme: dark)" srcset=".github/images/dark-preference.png">
-    <img alt="Famma AI - MCP Auth Logo" src=".github/images/white-preference.png" width="80%">
+    <img alt="Famma AI - MCP Auth Logo" src=".github/images/white-preference.png" width="100%">
   </picture>
 </p>
 
