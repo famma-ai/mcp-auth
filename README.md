@@ -6,6 +6,23 @@
   </picture>
 </p>
 
+<p align="center">
+  <a href="https://famma.ai" target="_blank">
+          <img alt="Static Badge" src="https://img.shields.io/badge/Product-F04438"></a>
+  <a href="https://twitter.com/intent/follow?screen_name=Famma_AI" target="_blank">
+          <img src="https://img.shields.io/twitter/follow/Famma_AI?logo=X&color=%20%23f5f5f5"
+              alt="follow on X(Twitter)"></a>
+  <a href="https://www.linkedin.com/company/109541898/" target="_blank">
+          <img src="https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff"
+              alt="follow on LinkedIn"></a>
+  <a href="https://www.npmjs.com/package/@famma/mcp-auth" target="_blank">
+           <img src="https://img.shields.io/npm/v/%40famma%2Fmcp-auth"
+  alt="NPM Version"></a>
+  <a href="https://github.com/famma-ai/mcp-auth/blob/main/LICENSE" target="_blank">
+          <img src="https://img.shields.io/github/license/famma-ai/mcp-auth"
+              alt="License"></a>
+</p>
+
 # Famma AI - MCP Auth
 
 SDK for building OAuth-protected Remote MCP servers on Cloudflare Workers with pluggable auth adapters (Supabase already implemented).
