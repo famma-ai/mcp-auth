@@ -19,7 +19,7 @@ Use this if:
 ## Install
 
 ```bash
-npm install
+npm install @famma/mcp-auth
 ```
 
 ## Quickstart
