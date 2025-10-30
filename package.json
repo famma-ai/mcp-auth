@@ -1,6 +1,6 @@
 {
     "name": "@famma/mcp-auth",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "private": false,
     "license": "MIT",
     "repository": {
@@ -13,7 +13,7 @@
     },
     "keywords": [
         "mcp",
-		"apps sdk",
+        "apps sdk",
         "modelcontextprotocol",
         "cloudflare-workers",
         "workers",
