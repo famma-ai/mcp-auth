@@ -19,7 +19,7 @@ Use this if:
 ## Install
 
 ```bash
-npm install @famma/mcp-auth
+npm install
 ```
 
 ## Quickstart
@@ -70,7 +70,21 @@ export default {
 };
 ```
 
-### wrangler.jsonc
+## Setup and Deployment
+
+### 1. Create KV namespace
+
+First, create a KV namespace for token storage:
+
+```bash
+npx wrangler kv namespace create OAUTH_KV
+```
+
+Copy the `id` value from the output.
+
+### 2. Configure wrangler.jsonc
+
+Create or update your `wrangler.jsonc` with the KV ID from the previous step. Make sure to keep the `binding` name as `OAUTH_KV`:
 
 ```json
 {
@@ -89,18 +103,38 @@ export default {
 }
 ```
 
-### Set secrets and run
+### 3. Create .dev.vars for local development
+
+For local development, create a `.dev.vars` file in your project root:
 
 ```bash
-# One time: create KV namespace
-npx wrangler kv namespace create OAUTH_KV
+# .dev.vars (for local development only - DO NOT commit to git)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+PROXY_TARGET_URL=http://localhost:3000
+```
 
-# Secrets for Supabase
+**Note**: `.dev.vars` is already included in `.gitignore` to prevent accidental commits of sensitive credentials.
+
+### 4. Set secrets for production
+
+For production deployment, configure all environment variables as secrets with Wrangler:
+
+```bash
+# Required secrets
 npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_ANON_KEY
+npx wrangler secret put PROXY_TARGET_URL
+```
 
-# Local dev
+### 5. Run locally or deploy
+
+```bash
+# Local development (uses .dev.vars)
 npx wrangler dev
+
+# Deploy to production (uses wrangler secrets)
+npx wrangler deploy
 ```
 
 Use `npx @modelcontextprotocol/inspector` or `npx @mcpjam/inspector@latest` to connect and test your MCP server.
@@ -294,10 +328,15 @@ Please open issues or PRs on GitHub.
 
 ## Links
 
+Repo: https://github.com/famma-ai/mcp-auth
+
 - MCP: https://modelcontextprotocol.io
 - Cloudflare Workers OAuth provider: https://developers.cloudflare.com/workers/
-- Repo: https://github.com/famma-ai/famma-mcp-sdk
 - npm: https://www.npmjs.com/package/@famma/mcp-auth
+
+## Credits
+
+Built on top of [Josh Warwick's comprehensive guide on building Remote MCP servers](https://blog.remote-mcp.com/p/from-hackathon-to-revenue-how-i-built), this SDK extends his work into a reusable, pluggable adapter architecture.
 
 ## License
 

@@ -3,9 +3,27 @@
 	"main": "src/worker.ts",
 	"compatibility_date": "2025-03-10",
 	"compatibility_flags": ["nodejs_compat"],
+	"migrations": [
+		{
+			"new_sqlite_classes": ["ExampleMCP"],
+			"tag": "v1"
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "ExampleMCP",
+				"name": "MCP_OBJECT"
+			}
+		]
+	},
 	"kv_namespaces": [
 		{ "binding": "OAUTH_KV", "id": "REPLACE_WITH_YOUR_KV_ID" }
 	],
+	// Environment variables for deployment
+	// For sensitive data like keys, use wrangler secrets instead:
+	// npx wrangler secret put SUPABASE_URL
+	// npx wrangler secret put SUPABASE_ANON_KEY
 	"vars": {
 		"COMPANY_NAME": "Example Co",
 		"LOGO_URL": "https://example.com/logo.png",
