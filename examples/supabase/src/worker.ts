@@ -4,6 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ExecutionContext } from "@cloudflare/workers-types";
 
 // Minimal MCP Agent example based on MCP SDK patterns
+// Export is required for Durable Objects binding
 export class ExampleMCP extends McpAgent {
 	server = new McpServer({ name: "Example", version: "1.0.0" });
 

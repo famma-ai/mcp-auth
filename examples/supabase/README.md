@@ -16,17 +16,35 @@ npx wrangler kv namespace create OAUTH_KV
 
 Copy the returned id into `wrangler.jsonc` under `kv_namespaces[0].id`.
 
-2) Set local dev vars (optional):
+2) Set local dev vars:
 
 ```bash
 cp .dev.vars.example .dev.vars
-# Edit .dev.vars with your SUPABASE_URL and SUPABASE_ANON_KEY
+# Edit .dev.vars with your actual values:
+# - SUPABASE_URL
+# - SUPABASE_ANON_KEY
+# - PROXY_TARGET_URL
 ```
 
 3) Run locally:
 
 ```bash
 npx wrangler dev
+```
+
+4) For production deployment, set secrets:
+
+```bash
+# Required secrets
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_ANON_KEY
+npx wrangler secret put PROXY_TARGET_URL
+```
+
+Then deploy:
+
+```bash
+npx wrangler deploy
 ```
 
 Endpoints to try:

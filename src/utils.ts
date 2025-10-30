@@ -70,7 +70,7 @@ export const renderLoggedInAuthorizeScreen = async (
 
 				<div class="mb-6">
 					<h2 class="text-lg font-semibold mb-3 text-gray-800">
-						Stack AI would like permission to:
+						"${companyName}" would like permission to:
 					</h2>
 					<ul class="space-y-4">
 						<li class="flex items-start gap-3">

@@ -1,6 +1,5 @@
 # Local development environment variables
 # Copy this file to .dev.vars and fill in your actual values
-# DO NOT commit .dev.vars to git (it's already in .gitignore)
 
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
@@ -9,3 +8,4 @@ SUPABASE_ANON_KEY=your-supabase-anon-key-here
 # Proxy Configuration
 # This is the URL where your login/auth pages are hosted
 PROXY_TARGET_URL=http://localhost:3000
+
